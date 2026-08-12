@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ecosistema de Gerencia de Proyectos</title>
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --border:#dfe5ec;
+      --blue:#e0ecff;
+      --green:#e4f7e9;
+      --amber:#fff2cc;
+      --purple:#efe6ff;
+      --dark:#172033;
+      --accent:#3659a7;
+      --shadow:0 12px 35px rgba(31,41,55,.09);
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, #eef4ff 0, transparent 35%),
+        linear-gradient(180deg,#fbfcff,#eef2f7);
+      color:var(--text);
+    }
+
+    .container{
+      width:min(1380px,94%);
+      margin:32px auto 50px;
+    }
+
+    .hero{
+      margin-bottom:22px;
+    }
+
+    h1{
+      margin:0 0 8px;
+      font-size:clamp(28px,3.6vw,44px);
+      line-height:1.1;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size:16px;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns: minmax(340px, .95fr) minmax(680px, 1.55fr);
+      gap:24px;
+      align-items:start;
+    }
+
+    .left-col, .right-col{
+      min-width:0;
+    }
+
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin:0 0 16px;
+    }
+
+    button{
+      border:1px solid var(--border);
+      background:var(--card);
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:700;
+      transition:.2s ease;
+    }
+
+    button:hover{
+      transform:translateY(-1px);
+      box-shadow:0 5px 14px rgba(0,0,0,.07);
+    }
+
+    button.active{
+      background:var(--dark);
+      color:#fff;
+      border-color:var(--dark);
+    }
+
+    .legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:18px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .tag{
+      padding:7px 10px;
+      border-radius:999px;
+      font-weight:700;
+    }
+
+    .tag.guia{background:var(--blue); color:#1e3a8a;}
+    .tag.agil{background:var(--green); color:#166534;}
+    .tag.mejora{background:var(--amber); color:#92400e;}
+    .tag.combinado{background:var(--purple); color:#5b21b6;}
+
+    .table-wrap{
+      overflow-x:auto;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:820px;
+    }
+
+    th,td{
+      padding:15px 14px;
+      text-align:left;
+      vertical-align:top;
+      border-bottom:1px solid var(--border);
+    }
+
+    th{
+      background:#eef2ff;
+      font-size:14px;
+      letter-spacing:.02em;
+    }
+
+    tbody tr{
+      transition:.18s ease;
+      cursor:pointer;
+    }
+
+    tbody tr:hover{
+      filter:brightness(.985);
+    }
+
+    tr.guia{background:#f8fbff;}
+    tr.agil{background:#f7fff9;}
+    tr.mejora{background:#fffcf4;}
+    tr.combinado{background:#fbf9ff;}
+
+    .name{
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    .details{
+      display:none;
+      background:#f9fafb;
+      cursor:default;
+    }
+
+    .details.open{
+      display:table-row;
+    }
+
+    .details td{
+      padding:0;
+    }
+
+    .details-box{
+      padding:16px 18px;
+      color:#374151;
+      line-height:1.55;
+    }
+
+    .callout{
+      margin-top:18px;
+      padding:18px;
+      border-radius:16px;
+      border-left:6px solid var(--accent);
+      background:white;
+      box-shadow:var(--shadow);
+      line-height:1.55;
+    }
+
+    .hint{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .right-col{
+      position:sticky;
+      top:20px;
+    }
+
+    .poem-section{
+      padding:28px 22px;
+      border-radius:26px;
+      background:linear-gradient(135deg,#edf3ff 0%,#f5ebff 55%,#fff0f5 100%);
+      border:1px solid #d8deef;
+      box-shadow:0 16px 42px rgba(54,89,167,.12);
+    }
+
+    .eyebrow{
+      display:inline-block;
+      padding:7px 12px;
+      border-radius:999px;
+      background:#ffffffcc;
+      color:#5f6678;
+      font-weight:700;
+      font-size:13px;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      margin-bottom:10px;
+    }
+
+    .poem-title{
+      margin:0 0 8px;
+      font-size:clamp(26px,2.8vw,38px);
+      line-height:1.08;
+      color:#28324a;
+    }
+
+    .poem-subtitle{
+      margin:0 0 18px;
+      color:#687087;
+      font-size:15px;
+      line-height:1.45;
+    }
+
+    .poem-card{
+      background:#ffffffdc;
+      border:1px solid #fff;
+      border-radius:24px;
+      padding:24px 20px;
+      box-shadow:0 10px 28px rgba(58,63,89,.09);
+      font-size:20px;
+      line-height:1.6;
+    }
+
+    .verse{
+      margin:0 0 18px;
+      padding-left:14px;
+      border-left:4px solid transparent;
+    }
+
+    .verse:last-child{margin-bottom:0;}
+    .v-pmi{border-color:#4f7fd8;}
+    .v-ipma{border-color:#7454b8;}
+    .v-scrum{border-color:#2f9f63;}
+    .v-kanban{border-color:#3a9e8f;}
+    .v-lean{border-color:#d19b2b;}
+    .v-six{border-color:#c26070;}
+    .v-hybrid{border-color:#8d60d1;}
+
+    .mark{
+      font-weight:800;
+      padding:2px 6px;
+      border-radius:7px;
+      white-space:nowrap;
+    }
+
+    .m-blue{background:#e3edff;color:#234d98;}
+    .m-purple{background:#eee7ff;color:#5c3e9f;}
+    .m-green{background:#e3f7ea;color:#247849;}
+    .m-teal{background:#e2f5f2;color:#25786d;}
+    .m-amber{background:#fff0c9;color:#966813;}
+    .m-rose{background:#ffe4ea;color:#9a4050;}
+    .m-violet{background:#eee6ff;color:#6842a6;}
+
+    .poem-note{
+      margin-top:14px;
+      color:#6a7081;
+      font-size:13px;
+      font-style:italic;
+      text-align:center;
+    }
+
+    @media (max-width: 1120px){
+      .layout{
+        grid-template-columns: 1fr;
+      }
+      .right-col{
+        position:static;
+      }
+    }
+
+    @media (max-width:650px){
+      .container{margin:22px auto 40px;}
+      .toolbar{gap:8px;}
+      button{padding:9px 11px;font-size:13px;}
+      .poem-card{font-size:18px;padding:20px 16px;}
+      .poem-section{padding:22px 16px;}
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="hero">
+      <h1>Ecosistema de Gerencia de Proyectos</h1>
+      <p class="subtitle">Cuadro resumen interactivo basado en el ensayo.</p>
+    </section>
+
+    <section class="layout">
+      <aside class="right-col">
+        <section class="poem-section" aria-labelledby="poem-title">
+          <span class="eyebrow">Síntesis creativa</span>
+          <h2 class="poem-title" id="poem-title">Rimas que resumen el ecosistema</h2>
+          <p class="poem-subtitle">Una forma breve de recordar la idea principal de cada enfoque.</p>
+
+          <div class="poem-card">
+            <p class="verse v-pmi">
+              El <span class="mark m-blue">PMI</span> creó<br>
+              la guía 7,<br>
+              para enfoques ágiles<br>
+              y también predictivos.
+            </p>
+
+            <p class="verse v-pmi">
+              Con la <span class="mark m-blue">versión 8</span><br>
+              decidió renovarse;<br>
+              incorpora la IA<br>
+              y nuevas necesidades.
+            </p>
+
+            <p class="verse v-ipma">
+              El <span class="mark m-purple">IPMA</span><br>
+              se enfoca<br>
+              en el profesional.
+            </p>
+
+            <p class="verse v-scrum">
+              Si de <span class="mark m-green">Scrum</span> hablamos,<br>
+              tenemos realimentación constante.
+            </p>
+
+            <p class="verse v-kanban">
+              <span class="mark m-teal">Kanban</span> se divide en tres:<br>
+              pendiente, en proceso y terminado.
+            </p>
+
+            <p class="verse v-lean">
+              Si desperdicio no queremos,<br>
+              <span class="mark m-amber">Lean</span> es el indicado.
+            </p>
+
+            <p class="verse v-six">
+              Si los datos<br>
+              son lo principal,<br>
+              seleccionamos<br>
+              <span class="mark m-rose">Six Sigma</span>.
+            </p>
+
+            <p class="verse v-hybrid">
+              Pero si enfoques<br>
+              hay que combinar,<br>
+              <span class="mark m-violet">híbrida y Blended</span><br>
+              se debe usar.
+            </p>
+          </div>
+
+          <p class="poem-note">Resumen creativo del ecosistema de gerencia de proyectos.</p>
+        </section>
+      </aside>
+
+      <div class="left-col">
+        <div class="toolbar" aria-label="Filtros">
+          <button class="filter active" data-filter="all">Todos</button>
+          <button class="filter" data-filter="guia">Guías y competencias</button>
+          <button class="filter" data-filter="agil">Ágiles</button>
+          <button class="filter" data-filter="mejora">Mejora de procesos</button>
+          <button class="filter" data-filter="combinado">Combinados</button>
+        </div>
+
+        <div class="legend">
+          <span class="tag guia">Guías y competencias</span>
+          <span class="tag agil">Ágiles</span>
+          <span class="tag mejora">Mejora de procesos</span>
+          <span class="tag combinado">Combinados</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Enfoque</th>
+                <th>¿Qué es?</th>
+                <th>Idea principal</th>
+                <th>Uso / ventaja</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="item guia" data-id="pmi">
+                <td class="name">PMI</td>
+                <td>Institución internacional de gerencia de proyectos.</td>
+                <td>Desarrolla estándares, guías y buenas prácticas.</td>
+                <td>Sirve como referencia para gestionar proyectos y certificarse profesionalmente.</td>
+              </tr>
+              <tr class="details" data-parent="pmi">
+                <td colspan="4"><div class="details-box"><strong>Clave:</strong> PMI no es una metodología. Es la organización que desarrolla estándares y guías como PMBOK.</div></td>
+              </tr>
+
+              <tr class="item guia" data-id="pmbok7">
+                <td class="name">PMBOK 7</td>
+                <td>Guía desarrollada por el PMI.</td>
+                <td>Principios, valor, resultados y adaptación.</td>
+                <td>Flexible: proyectos predictivos, ágiles o híbridos.</td>
+              </tr>
+              <tr class="details" data-parent="pmbok7">
+                <td colspan="4"><div class="details-box">Puede aplicarse en proyectos industriales, tecnológicos, empresariales o de construcción.</div></td>
+              </tr>
+
+              <tr class="item guia" data-id="pmbok8">
+                <td class="name">PMBOK 8</td>
+                <td>Evolución de PMBOK 7.</td>
+                <td>Más práctico y actualizado.</td>
+                <td>Incluye sostenibilidad, IA, gobernanza y nuevas necesidades.</td>
+              </tr>
+              <tr class="details" data-parent="pmbok8">
+                <td colspan="4"><div class="details-box">Mantiene la adaptación, pero busca una estructura más clara y aplicable a las organizaciones actuales.</div></td>
+              </tr>
+
+              <tr class="item guia" data-id="ipma">
+                <td class="name">IPMA</td>
+                <td>Enfoque en las competencias del profesional.</td>
+                <td>Perspectiva, personas y práctica.</td>
+                <td>Evalúa capacidades técnicas y humanas; certificación profesional.</td>
+              </tr>
+              <tr class="details" data-parent="ipma">
+                <td colspan="4"><div class="details-box">Resalta que el éxito no depende solo de métodos y herramientas, sino también de las capacidades humanas.</div></td>
+              </tr>
+
+              <tr class="item agil" data-id="scrum">
+                <td class="name">Scrum</td>
+                <td>Marco para abordar problemas complejos.</td>
+                <td>Trabajo en ciclos cortos llamados Sprints.</td>
+                <td>Retroalimentación constante y adaptación a cambios.</td>
+              </tr>
+              <tr class="details" data-parent="scrum">
+                <td colspan="4"><div class="details-box">Surgió en software, pero también se usa en innovación, tecnología y diseño de productos.</div></td>
+              </tr>
+
+              <tr class="item agil" data-id="kanban">
+                <td class="name">Kanban</td>
+                <td>Método para visualizar el trabajo.</td>
+                <td>Pendiente → en proceso → terminado.</td>
+                <td>Mejora el flujo, identifica cuellos de botella y evita acumulación.</td>
+              </tr>
+              <tr class="details" data-parent="kanban">
+                <td colspan="4"><div class="details-box">Se concentra en mantener un flujo continuo de actividades, sin necesidad de dividir el trabajo en Sprints.</div></td>
+              </tr>
+
+              <tr class="item mejora" data-id="lean">
+                <td class="name">Lean</td>
+                <td>Filosofía orientada a eliminar desperdicios.</td>
+                <td>Valor, flujo, demanda y mejora continua.</td>
+                <td>Reduce tiempos, costos, errores y actividades innecesarias.</td>
+              </tr>
+              <tr class="details" data-parent="lean">
+                <td colspan="4"><div class="details-box">Puede aplicarse en procesos industriales, administrativos y logísticos.</div></td>
+              </tr>
+
+              <tr class="item mejora" data-id="sixsigma">
+                <td class="name">Six Sigma</td>
+                <td>Metodología basada en datos.</td>
+                <td>Definir, medir, analizar, mejorar y controlar.</td>
+                <td>Reduce variabilidad y defectos para mejorar la calidad.</td>
+              </tr>
+              <tr class="details" data-parent="sixsigma">
+                <td colspan="4"><div class="details-box">Se utiliza principalmente en procesos repetitivos que necesitan ser medidos y mejorados.</div></td>
+              </tr>
+
+              <tr class="item combinado" data-id="hybrid">
+                <td class="name">Híbridas / Blended</td>
+                <td>Combinación de diferentes enfoques.</td>
+                <td>Se configuran según las necesidades del proyecto.</td>
+                <td>Permiten aprovechar las fortalezas de varios métodos.</td>
+              </tr>
+              <tr class="details" data-parent="hybrid">
+                <td colspan="4"><div class="details-box">No tienen etapas universales obligatorias: se adaptan a las características de cada proyecto.</div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout">
+          <strong>Idea central:</strong> no existe un enfoque mejor para todos los casos. Hay que tener en cuenta los requerimientos y características del proyecto para seleccionar o combinar las prácticas más adecuadas.
+        </div>
+
+        <p class="hint">Haz clic en cualquier fila para ver una explicación adicional.</p>
+      </div>
+
+
+    </section>
+  </main>
+
+  <script>
+    const filterButtons = document.querySelectorAll('.filter');
+    const items = document.querySelectorAll('.item');
+    const detailRows = document.querySelectorAll('.details');
+
+    filterButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        filterButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+
+        const filter = button.dataset.filter;
+
+        items.forEach(row => {
+          const show = filter === 'all' || row.classList.contains(filter);
+          row.style.display = show ? '' : 'none';
+
+          const detail = document.querySelector(`[data-parent="${row.dataset.id}"]`);
+          if (!show && detail) {
+            detail.classList.remove('open');
+            detail.style.display = 'none';
+          } else if (detail) {
+            detail.style.display = '';
+          }
+        });
+      });
+    });
+
+    items.forEach(row => {
+      row.addEventListener('click', () => {
+        const id = row.dataset.id;
+        const detail = document.querySelector(`[data-parent="${id}"]`);
+
+        detailRows.forEach(d => {
+          if (d !== detail) d.classList.remove('open');
+        });
+
+        detail.classList.toggle('open');
+      });
+    });
+  </script>
+</body>
+</html>
